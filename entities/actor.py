@@ -1,5 +1,6 @@
 import pygame
 from abc import ABC, abstractmethod
+from entities.damage_number import DamageNumber
 from entities.entity import Entity
 from entities.explosion import Explosion
 
@@ -127,3 +128,5 @@ class Actor(Entity, ABC):
             return
 
         self.entity_manager.sound_manager.play_sound("hit")
+        damage_number = DamageNumber(self.screen, self.pos.copy(), amount)
+        self.entity_manager.instantiate(damage_number)
