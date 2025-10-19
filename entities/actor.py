@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 from entities.damage_number import DamageNumber
 from entities.entity import Entity
 from entities.explosion import Explosion
+from tags.tags import Tag
 
 
 class Actor(Entity, ABC):
@@ -132,7 +133,7 @@ class Actor(Entity, ABC):
     def die(self):
         self.hp = 0
         self.entity_manager.sound_manager.play_sound("explosion")
-        explosion = Explosion(self.tags, self.screen, self.pos.copy())
+        explosion = Explosion([Tag.PLAYER], self.screen, self.pos.copy())
         self.entity_manager.instantiate(explosion)
         self.entity_manager.destroy(self)
 

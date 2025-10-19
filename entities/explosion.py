@@ -11,7 +11,7 @@ class Explosion(Static):
         owner_tags: Tag,
         screen: pygame.Surface,
         initial_pos: pygame.Vector2,
-        dmg: float = 10,
+        dmg: float = 50,
     ):
         super().__init__(screen, initial_pos)
         self.height = 20
@@ -21,6 +21,7 @@ class Explosion(Static):
         self.max_size = 200
         self.size = 0  # Start at size 0
         self.grow_time = 0.1  # Time to reach max size
+        self.damaged_entities = set()  # Track which entities we've already damaged
 
         # Secondary explosions - random number between 1 and 3
         self.secondary_explosions = self._create_secondary_explosions(initial_pos)
@@ -134,8 +135,25 @@ class Explosion(Static):
         for secondary in self.secondary_explosions:
             self._update_secondary_explosion_size(secondary, time_elapsed)
 
+        # Check collisions with all entities
+        if self.entity_manager:
+            from entities.actor import Actor
+
+            for entity in self.entity_manager.entities:
+                if entity != self and isinstance(entity, Actor):
+                    # Skip if already damaged this entity
+                    if entity in self.damaged_entities:
+                        continue
+
+                    # Check if entity is within explosion radius
+                    distance = self.pos.distance_to(entity.pos)
+                    if distance < (self.size / 2):
+                        self.on_collision(entity)
+                        self.damaged_entities.add(entity)  # Mark as damaged
+
     def on_collision(self, other):
         # Don't collide with entities that share the same tags
+        print(self.tags)
         if any(tag in other.tags for tag in self.tags):
             return
 

@@ -14,7 +14,7 @@ class Enemy(Actor):
         self.max_size = 80  # Maximum size of the square
         self.size = 0  # Start at size 0
         self.current_size = 0  # Current size during growth
-        self.grow_duration = 0.3  # Time to grow to full size
+        self.grow_duration = 0.2  # Time to grow to full size
         self.grow_timer = 0  # Timer for growth animation
         self.is_growing = True  # Flag to track if still growing
         self.tags.append(Tag.ENEMY)
