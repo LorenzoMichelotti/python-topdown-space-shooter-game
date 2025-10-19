@@ -6,24 +6,6 @@ from entities.explosion import Explosion
 
 
 class Actor(Entity, ABC):
-    screen: pygame.Surface
-    pos: pygame.Vector2
-    height: int = 10
-    velocity = pygame.Vector2(0, 0)
-    acceleration = 5000  # Units per second squared
-    max_speed = 600  # Maximum speed
-    friction = 5  # Deceleration factor
-    layer = 1  # Rendering layer
-    shadow_layer = 0  # All shadows render below actors
-    invulnerable: bool = False
-    invulnerable_timer: float = 0.0
-    invulnerability_duration: float = 0.2  # Seconds of invulnerability after hit
-
-    collision_radius = 40
-    hp = 100
-    max_hp = 100
-    dmg = 10
-
     def __init__(
         self,
         screen: pygame.Surface,
@@ -39,6 +21,26 @@ class Actor(Entity, ABC):
         self.velocity = pygame.Vector2(0, 0)  # Initialize as instance variable
         self.damage_flash_timer = 0
         self.damage_flash_duration = 0.15
+
+        screen: pygame.Surface
+        self.pos: pygame.Vector2
+        self.height: int = 10
+        self.velocity = pygame.Vector2(0, 0)
+        self.acceleration = 5000  # Units per second squared
+        self.max_speed = 600  # Maximum speed
+        self.friction = 5  # Deceleration factor
+        self.layer = 1  # Rendering layer
+        self.shadow_layer = 0  # All shadows render below actors
+        self.invulnerable: bool = False
+        self.invulnerable_timer: float = 0.0
+        self.invulnerability_duration: float = (
+            0.2  # Seconds of invulnerability after hit
+        )
+
+        self.collision_radius = 40
+        self.hp = 100
+        self.max_hp = 100
+        self.dmg = 10
 
     def get_color_with_flash(self, normal_color):
         """Returns the color to draw, with flash effect if taking damage"""
@@ -56,7 +58,41 @@ class Actor(Entity, ABC):
 
     @abstractmethod
     def draw_shadow(self):
+        """Each actor must implement their own shadow drawing for performance"""
         pass
+
+    def apply_friction(self, dt: float):
+        """Apply friction to velocity - shared physics logic"""
+        if self.velocity.length() > 0:
+            friction_amount = max(0, 1 - (self.friction * dt))
+            self.velocity *= friction_amount
+
+            # Stop completely if velocity is very small
+            if self.velocity.length() < 5:
+                self.velocity = pygame.Vector2(0, 0)
+
+    def apply_acceleration(
+        self, accel: pygame.Vector2, dt: float, clamp_to_max: bool = True
+    ):
+        """Apply acceleration and update velocity - shared physics logic"""
+        if accel.length() > 0:
+            accel = accel.normalize() * self.acceleration
+            self.velocity += accel * dt
+        else:
+            # Apply friction when no acceleration
+            self.apply_friction(dt)
+
+        # Clamp velocity to max speed (but allow knockback to exceed temporarily)
+        if (
+            clamp_to_max
+            and self.velocity.length() > self.max_speed
+            and accel.length() > 0
+        ):
+            self.velocity = self.velocity.normalize() * self.max_speed
+
+    def update_position(self, dt: float):
+        """Update position based on velocity - shared physics logic"""
+        self.pos += self.velocity * dt
 
     @abstractmethod
     def move(self, dt: float):
@@ -104,7 +140,7 @@ class Actor(Entity, ABC):
         self,
         amount: float,
         damage_source_pos: pygame.Vector2 = None,
-        knockback_force=500,
+        knockback_force=1000,
     ):
         if self.invulnerable:
             return

@@ -62,7 +62,7 @@ class Player(Actor):
     def move(self, dt: float):
         keys = pygame.key.get_pressed()
 
-        # Calculate acceleration direction
+        # Calculate acceleration direction from input
         accel = pygame.Vector2(0, 0)
 
         if keys[pygame.K_w]:
@@ -74,27 +74,9 @@ class Player(Actor):
         if keys[pygame.K_d]:
             accel.x += 1
 
-        # Normalize diagonal movement
-        if accel.length() > 0:
-            accel = accel.normalize() * self.acceleration
-            self.velocity += accel * dt
-        else:
-            # Apply friction when no input
-            if self.velocity.length() > 0:
-                friction_force = (
-                    self.velocity.normalize() * self.friction * self.acceleration * dt
-                )
-                if friction_force.length() > self.velocity.length():
-                    self.velocity = pygame.Vector2(0, 0)
-                else:
-                    self.velocity -= friction_force
-
-        # Clamp velocity to max speed
-        if self.velocity.length() > self.max_speed:
-            self.velocity = self.velocity.normalize() * self.max_speed
-
-        # Update position
-        self.pos += self.velocity * dt
+        # Apply physics (shared logic)
+        self.apply_acceleration(accel, dt)
+        self.update_position(dt)
 
         # Update look direction to mouse
         mouse_pos = pygame.mouse.get_pos()
