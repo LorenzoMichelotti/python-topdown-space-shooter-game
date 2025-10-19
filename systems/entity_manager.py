@@ -5,6 +5,7 @@ class EntityManager:
     def __init__(self, sound_manager=None):
         self.entities: list[Entity] = []
         self.sound_manager = sound_manager
+        self.score = 0
 
     def instantiate(self, entity: Entity, lifetime: float = -1):
         entity.entity_manager = self

@@ -15,7 +15,7 @@ class Camera:
         self.shake_intensity = intensity
         self.shake_duration = duration
         self.shake_timer = duration
-    
+
     def apply_shake(self, intensity: float, duration: float):
         """Alias for shake() method"""
         self.shake(intensity, duration)
@@ -24,11 +24,11 @@ class Camera:
         """Update camera shake"""
         if self.shake_timer > 0:
             self.shake_timer -= dt
-            
+
             # Calculate shake offset
             progress = self.shake_timer / self.shake_duration
             current_intensity = self.shake_intensity * progress
-            
+
             # Random shake offset
             self.offset.x = random.uniform(-current_intensity, current_intensity)
             self.offset.y = random.uniform(-current_intensity, current_intensity)

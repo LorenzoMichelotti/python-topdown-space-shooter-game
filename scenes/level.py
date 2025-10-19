@@ -9,13 +9,16 @@ from systems.camera import Camera
 from systems.entity_manager import EntityManager
 from systems.sound_manager import SoundManager
 from systems.wave_manager import WaveManager
+from ui.level_hud import LevelHud
 
 
 class Level(Scene):
     def __init__(self, screen: pygame.Surface):
         self.screen = screen
         self.camera = Camera(screen)
-        
+        self.game_over = False
+        self.game_over_timer = 0  # Delay before showing restart message
+
         # load entities
         self.player = Player(screen)
         self.enemy = Enemy(
@@ -29,6 +32,7 @@ class Level(Scene):
             entity_manager=self.entity_manager, screen=screen
         )
         self.cursor = Cursor(screen)
+        self.hud = LevelHud()
 
     def setup(self):
         pygame.mouse.set_visible(False)
@@ -42,31 +46,99 @@ class Level(Scene):
 
         self.wave_manager.start_next_wave()
 
+    def restart(self):
+        """Restart the game"""
+        self.game_over = False
+        self.game_over_timer = 0
+
+        # Clear all entities
+        self.entity_manager.entities.clear()
+
+        # Recreate player and cursor
+        self.player = Player(self.screen)
+        self.cursor = Cursor(self.screen)
+
+        # Re-instantiate them
+        self.entity_manager.instantiate(self.player)
+        self.entity_manager.instantiate(self.cursor)
+
+        # Restart wave system
+        self.wave_manager.current_wave = 0
+        self.wave_manager.wave_active = False
+        self.wave_manager.start_next_wave()
+
     def render(self, dt: float):
+        # Check if player is dead
+        if not self.game_over and self.player.hp <= 0:
+            self.game_over = True
+            self.game_over_timer = 0
+
+        # Handle restart input
+        if self.game_over:
+            self.game_over_timer += dt
+            keys = pygame.key.get_pressed()
+            if (
+                keys[pygame.K_r] and self.game_over_timer > 1.0
+            ):  # Wait 1 second before allowing restart
+                self.restart()
+                return
+
         # Update camera shake
         self.camera.update(dt)
-        
+
         # Get camera offset
         offset = self.camera.get_offset()
-        
+
         # Create a surface for the world (with camera offset)
         world_surface = pygame.Surface(self.screen.get_size())
         world_surface.fill("blue")
-        
+
         # Temporarily replace screen with world surface for entities to draw on
         original_screen = self.screen
         for entity in self.entity_manager.entities:
             entity.screen = world_surface
-        
+
         # Update entities (they draw to world_surface)
         self.entity_manager.update(dt)
         self.wave_manager.update(dt)
-        
+
         # Restore original screen
         for entity in self.entity_manager.entities:
             entity.screen = original_screen
-        
+
         # Draw world surface to screen with camera offset
         self.screen.blit(world_surface, offset)
 
+        # Draw game over screen
+        if self.game_over:
+            # Semi-transparent dark overlay
+            overlay = pygame.Surface(self.screen.get_size())
+            overlay.set_alpha(180)
+            overlay.fill((0, 0, 0))
+            self.screen.blit(overlay, (0, 0))
+
+            # Game over text
+            font_large = pygame.font.Font(None, 74)
+            font_small = pygame.font.Font(None, 36)
+
+            game_over_text = font_large.render("GAME OVER", True, (255, 50, 50))
+            game_over_rect = game_over_text.get_rect(
+                center=(self.screen.get_width() / 2, self.screen.get_height() / 2 - 50)
+            )
+            self.screen.blit(game_over_text, game_over_rect)
+
+            # Show restart message after delay
+            if self.game_over_timer > 1.0:
+                restart_text = font_small.render(
+                    "Press R to Restart", True, (255, 255, 255)
+                )
+                restart_rect = restart_text.get_rect(
+                    center=(
+                        self.screen.get_width() / 2,
+                        self.screen.get_height() / 2 + 50,
+                    )
+                )
+                self.screen.blit(restart_text, restart_rect)
+
+        self.hud.render(self.screen, dt, self.player, self.wave_manager)
         pygame.display.flip()

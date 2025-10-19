@@ -139,6 +139,14 @@ class Player(Actor):
         self.apply_acceleration(accel, dt)
         self.update_position(dt)
 
+        # Clamp player position to screen boundaries
+        half_size = self.size / 2
+        screen_width = self.screen.get_width()
+        screen_height = self.screen.get_height()
+
+        self.pos.x = max(half_size, min(self.pos.x, screen_width - half_size))
+        self.pos.y = max(half_size, min(self.pos.y, screen_height - half_size))
+
         # Update look direction to mouse
         mouse_pos = pygame.mouse.get_pos()
         direction = pygame.Vector2(mouse_pos[0] - self.pos.x, mouse_pos[1] - self.pos.y)

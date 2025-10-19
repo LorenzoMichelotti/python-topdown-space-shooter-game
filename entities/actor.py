@@ -135,11 +135,18 @@ class Actor(Entity, ABC):
         self.entity_manager.sound_manager.play_sound("explosion")
         explosion = Explosion([Tag.PLAYER], self.screen, self.pos.copy())
         self.entity_manager.instantiate(explosion)
-        
+
         # Trigger camera shake on death/explosion
         if self.entity_manager.camera:
             self.entity_manager.camera.shake(15, 0.2)
-        
+
+        if Tag.ENEMY in self.tags:
+            # Increase score for enemy death
+            score = 100
+            self.entity_manager.score += score
+            damage_number = DamageNumber(self.screen, self.pos.copy(), score)
+            self.entity_manager.instantiate(damage_number)
+
         self.entity_manager.destroy(self)
 
     def take_damage(
@@ -167,13 +174,10 @@ class Actor(Entity, ABC):
 
         # Trigger camera shake (more intense for player)
         if self.entity_manager.camera:
-            shake_intensity = 10 if hasattr(self, 'tag') and self.tag == 1 else 5  # Player gets stronger shake
-            self.entity_manager.camera.shake(shake_intensity, 0.1)
+            self.entity_manager.camera.shake(10, 0.1)
 
         if self.hp <= 0:
             self.die()
             return
 
         self.entity_manager.sound_manager.play_sound("hit")
-        # damage_number = DamageNumber(self.screen, self.pos.copy(), amount)
-        # self.entity_manager.instantiate(damage_number)
