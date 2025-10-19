@@ -10,6 +10,9 @@ class Cursor(Static):
         self.height = 10
         self.layer = 4
         self.size = 80
+        self.skip_auto_draw = (
+            True  # Don't draw during entity update, draw manually at the end
+        )
         self.original_sprite = pygame.image.load(
             "assets/sprites/cursor_sprite.png"
         ).convert_alpha()

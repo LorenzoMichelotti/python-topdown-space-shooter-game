@@ -1,6 +1,7 @@
 import pygame
 import random
 from entities.actor import Actor
+from entities.blast import Blast
 from entities.bullet import Bullet
 from tags.tags import Tag
 
@@ -10,7 +11,9 @@ class Player(Actor):
         super().__init__(screen)
         self.pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
         self.shoot_cooldown = 0  # Cooldown timer
+        self.blast_cooldown = 0  # Cooldown timer
         self.shoot_delay = 0.1  # Seconds between shots
+        self.blast_delay = 1.0  # Seconds between blasts
         self.shoot_angle_variance = 20  # Degrees of inaccuracy
         self.layer = 3
         self.size = 80
@@ -124,7 +127,7 @@ class Player(Actor):
                 self._spawn_trail_particle()
                 self.trail_spawn_timer = 0
 
-    def spawn_bullet(self, angle_offset: float):
+    def spawn_bullet(self, angle_offset: float, dmg: float = None):
         bullet = Bullet(
             self.tags.copy(),
             self.screen,
@@ -133,7 +136,7 @@ class Player(Actor):
                 angle_offset
                 + random.uniform(-self.shoot_angle_variance, self.shoot_angle_variance)
             ),
-            self.dmg,
+            self.dmg if dmg is None else dmg,
         )
         self.entity_manager.instantiate(bullet)
 
@@ -148,6 +151,17 @@ class Player(Actor):
             self.shoot_cooldown = self.shoot_delay
             self.entity_manager.sound_manager.play_sound("shoot")
 
+    def super_blast(self):
+        if self.blast_cooldown <= 0:
+            # created a growing explosion circle that damages all enemies once when it touches them
+            explosion = Blast(
+                self.screen,
+                self.pos.copy(),
+            )
+            self.entity_manager.instantiate(explosion)
+            self.blast_cooldown = self.blast_delay
+            self.entity_manager.sound_manager.play_sound("explosion")
+
     def update(self, dt: float):
         super().update(dt)
 
@@ -157,5 +171,11 @@ class Player(Actor):
         if self.shoot_cooldown > 0:
             self.shoot_cooldown -= dt
 
+        if self.blast_cooldown > 0:
+            self.blast_cooldown -= dt
+
         if pygame.mouse.get_pressed()[0]:
             self.shoot()
+
+        if pygame.key.get_pressed()[pygame.K_SPACE]:
+            self.super_blast()

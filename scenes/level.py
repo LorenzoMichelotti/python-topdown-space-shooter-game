@@ -102,6 +102,7 @@ class Level(Scene):
             entity.screen = world_surface
 
         # Update entities (they draw to world_surface)
+        # Note: Cursor will be drawn separately later to appear on top of overlays
         self.entity_manager.update(dt)
         self.wave_manager.update(dt)
 
@@ -167,6 +168,10 @@ class Level(Scene):
                 )
             )
             self.screen.blit(resume_text, resume_rect)
+
+        # Draw cursor on top of everything (overlays, HUD, etc.)
+        self.cursor.draw_shadow()
+        self.cursor.draw()
 
         self.hud.render(self.screen, dt, self.player, self.wave_manager)
         pygame.display.flip()

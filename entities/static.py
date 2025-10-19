@@ -37,8 +37,10 @@ class Static(Entity, ABC):
         pass
 
     def update(self, dt: float):
-        self.draw_shadow()  # Draw shadow first
-        self.draw()  # Then draw actor on top
+        # Skip drawing if this entity will be drawn manually later (e.g., cursor on top of overlays)
+        if not getattr(self, "skip_auto_draw", False):
+            self.draw_shadow()  # Draw shadow first
+            self.draw()  # Then draw actor on top
 
         if not self.always_active and self.entity_manager.paused:
             return

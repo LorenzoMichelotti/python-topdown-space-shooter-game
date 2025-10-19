@@ -1,5 +1,6 @@
 import random
 import pygame
+from entities.dasher import Dasher
 from entities.enemy import Enemy
 from entities.wanderer import Wanderer
 from systems.entity_manager import EntityManager
@@ -9,7 +10,7 @@ class WaveManager:
     def __init__(self, entity_manager: EntityManager, screen: pygame.Surface):
         self.entity_manager = entity_manager
         self.screen = screen
-        self.current_wave_index = 0
+        self.current_wave_index = 100
         self.enemies_spawned = 0
         self.time_since_last_spawn = 0.0
         self.wave_in_progress = False
@@ -25,7 +26,7 @@ class WaveManager:
         enemy_count = base_enemy_count + (wave_number * 5) * self.enemy_count_multiplier
 
         # Scale spawn interval: gets faster but has a minimum of 0.1 seconds
-        spawn_interval = max(0.1, base_spawn_interval - (wave_number * 0.05))
+        spawn_interval = max(0.05, base_spawn_interval - (wave_number * 0.05))
 
         return {"enemy_count": enemy_count, "spawn_interval": spawn_interval}
 
@@ -54,7 +55,7 @@ class WaveManager:
         else:
             # Check if all enemies are defeated (both Enemy and Wanderer types)
             if not any(
-                isinstance(entity, (Enemy, Wanderer))
+                isinstance(entity, (Enemy, Wanderer, Dasher))
                 for entity in self.entity_manager.entities
             ):
                 self.wave_in_progress = False
@@ -78,9 +79,11 @@ class WaveManager:
         else:  # Left (side == 3)
             spawn_pos = pygame.Vector2(0, random.randint(0, screen_height))
 
-        # 20% chance to spawn a wanderer instead of a regular enemy
-        if random.random() < 0.2:
+        # 40% chance to spawn a wanderer instead of a regular enemy
+        if random.random() < 0.4:
             enemy = Wanderer(self.screen, spawn_pos)
+        if random.random() < 0.1:
+            enemy = Dasher(self.screen, spawn_pos)
         else:
             enemy = Enemy(self.screen, spawn_pos)
 
