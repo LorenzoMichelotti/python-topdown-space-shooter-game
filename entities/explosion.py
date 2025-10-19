@@ -152,8 +152,6 @@ class Explosion(Static):
                         self.damaged_entities.add(entity)  # Mark as damaged
 
     def on_collision(self, other):
-        # Don't collide with entities that share the same tags
-        print(self.tags)
         if any(tag in other.tags for tag in self.tags):
             return
 

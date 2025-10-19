@@ -3,7 +3,6 @@ import pygame
 
 class LevelHud:
     def render(self, screen: pygame.Surface, dt: float, player, wave_manager):
-        """Render the HUD elements on the screen"""
         # Render health bar
         health_bar_width = 200
         health_bar_height = 40

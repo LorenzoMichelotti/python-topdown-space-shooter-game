@@ -1,6 +1,7 @@
 import random
 import pygame
 from entities.enemy import Enemy
+from entities.wanderer import Wanderer
 from systems.entity_manager import EntityManager
 
 
@@ -50,9 +51,10 @@ class WaveManager:
                 self.enemies_spawned += 1
                 self.time_since_last_spawn = 0.0
         else:
-            # Check if all enemies are defeated
+            # Check if all enemies are defeated (both Enemy and Wanderer types)
             if not any(
-                isinstance(entity, Enemy) for entity in self.entity_manager.entities
+                isinstance(entity, (Enemy, Wanderer))
+                for entity in self.entity_manager.entities
             ):
                 self.wave_in_progress = False
                 print(f"Wave {self.current_wave_index} completed!")
@@ -75,5 +77,10 @@ class WaveManager:
         else:  # Left (side == 3)
             spawn_pos = pygame.Vector2(0, random.randint(0, screen_height))
 
-        enemy = Enemy(self.screen, spawn_pos)
+        # 20% chance to spawn a wanderer instead of a regular enemy
+        if random.random() < 0.2:
+            enemy = Wanderer(self.screen, spawn_pos)
+        else:
+            enemy = Enemy(self.screen, spawn_pos)
+
         self.entity_manager.instantiate(enemy)
