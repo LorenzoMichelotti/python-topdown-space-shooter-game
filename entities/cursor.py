@@ -6,6 +6,7 @@ from entities.static import Static
 class Cursor(Static):
     def __init__(self, screen: pygame.Surface):
         super().__init__(screen)
+        self.always_active = True
         self.height = 10
         self.layer = 4
         self.size = 80

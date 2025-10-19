@@ -6,9 +6,10 @@ from entities.entity import Entity
 class Static(Entity, ABC):
     screen: pygame.Surface
     pos: pygame.Vector2
-    height: int = 10
+    height: int = 25
     layer = 1  # Rendering layer
     shadow_layer = 0  # All shadows render below actors
+    always_active = False
 
     def __init__(
         self,
@@ -38,4 +39,8 @@ class Static(Entity, ABC):
     def update(self, dt: float):
         self.draw_shadow()  # Draw shadow first
         self.draw()  # Then draw actor on top
+
+        if not self.always_active and self.entity_manager.paused:
+            return
+
         self.move(dt)

@@ -7,6 +7,7 @@ class Camera:
         self.screen = screen
         self.offset = pygame.Vector2(0, 0)
         self.shake_intensity = 0
+        self.shake_dampening = 0.9
         self.shake_duration = 0
         self.shake_timer = 0
 
@@ -24,6 +25,7 @@ class Camera:
         """Update camera shake"""
         if self.shake_timer > 0:
             self.shake_timer -= dt
+            self.shake_intensity *= self.shake_dampening
 
             # Calculate shake offset
             progress = self.shake_timer / self.shake_duration
@@ -40,3 +42,7 @@ class Camera:
     def get_offset(self) -> pygame.Vector2:
         """Get current camera offset for rendering"""
         return self.offset
+
+    def apply(self, surface: pygame.Surface):
+        offset = self.get_offset()
+        self.screen.blit(surface, offset)

@@ -10,7 +10,6 @@ class BaseEnemy(Actor):
 
     def __init__(self, screen: pygame.Surface, initial_pos: pygame.Vector2):
         super().__init__(screen, initial_pos)
-        self.height = 10
         self.layer = 2
         self.friction = 3
 

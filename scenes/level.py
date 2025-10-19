@@ -143,5 +143,30 @@ class Level(Scene):
                 )
                 self.screen.blit(restart_text, restart_rect)
 
+        # Draw pause screen
+        if self.entity_manager.paused:
+            overlay = pygame.Surface(self.screen.get_size())
+            overlay.set_alpha(180)
+            overlay.fill((0, 0, 0))
+            self.screen.blit(overlay, (0, 0))
+
+            font_large = pygame.font.Font(None, 74)
+            font_small = pygame.font.Font(None, 36)
+
+            pause_text = font_large.render("PAUSED", True, (255, 255, 255))
+            pause_rect = pause_text.get_rect(
+                center=(self.screen.get_width() / 2, self.screen.get_height() / 2 - 50)
+            )
+            self.screen.blit(pause_text, pause_rect)
+
+            resume_text = font_small.render("esc to resume", True, (255, 255, 255))
+            resume_rect = resume_text.get_rect(
+                center=(
+                    self.screen.get_width() / 2,
+                    self.screen.get_height() / 2 + 10,
+                )
+            )
+            self.screen.blit(resume_text, resume_rect)
+
         self.hud.render(self.screen, dt, self.player, self.wave_manager)
         pygame.display.flip()

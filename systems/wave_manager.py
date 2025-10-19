@@ -13,15 +13,16 @@ class WaveManager:
         self.enemies_spawned = 0
         self.time_since_last_spawn = 0.0
         self.wave_in_progress = False
+        self.enemy_count_multiplier = 5  # Multiplier for enemy count scaling per wave
 
     def get_wave_config(self, wave_number: int):
         """Generate wave configuration based on wave number for infinite scaling"""
         # Base values
         base_enemy_count = 5
-        base_spawn_interval = 1.0
+        base_spawn_interval = 1.0 / self.enemy_count_multiplier
 
         # Scale enemy count: increases by 5 every wave for more aggressive scaling
-        enemy_count = base_enemy_count + (wave_number * 5)
+        enemy_count = base_enemy_count + (wave_number * 5) * self.enemy_count_multiplier
 
         # Scale spawn interval: gets faster but has a minimum of 0.1 seconds
         spawn_interval = max(0.1, base_spawn_interval - (wave_number * 0.05))

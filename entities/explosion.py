@@ -11,10 +11,9 @@ class Explosion(Static):
         owner_tags: Tag,
         screen: pygame.Surface,
         initial_pos: pygame.Vector2,
-        dmg: float = 50,
+        dmg: float = 100,
     ):
         super().__init__(screen, initial_pos)
-        self.height = 20
         self.lifetime = 0.5  # Explosions last 0.5 second by default
         self.initial_lifetime = 0.5  # Store initial lifetime
         self.dmg = dmg

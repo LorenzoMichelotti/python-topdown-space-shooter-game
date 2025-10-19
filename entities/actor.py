@@ -25,7 +25,7 @@ class Actor(Entity, ABC):
 
         screen: pygame.Surface
         self.pos: pygame.Vector2
-        self.height: int = 10
+        self.height: int = 25
         self.velocity = pygame.Vector2(0, 0)
         self.acceleration = 5000  # Units per second squared
         self.max_speed = 600  # Maximum speed
@@ -69,7 +69,7 @@ class Actor(Entity, ABC):
 
         # Create darkened shadow
         shadow_surface = rotated_sprite.copy()
-        shadow_surface.fill((0, 0, 0, 180), special_flags=pygame.BLEND_RGBA_MULT)
+        shadow_surface.fill((0, 0, 0, 255), special_flags=pygame.BLEND_RGBA_MULT)
 
         shadow_rect = shadow_surface.get_rect(
             center=(self.pos.x, self.pos.y + self.height)
@@ -150,7 +150,7 @@ class Actor(Entity, ABC):
 
         # Create darkened shadow
         shadow_surface = rotated_sprite.copy()
-        shadow_surface.fill((0, 0, 0, 180), special_flags=pygame.BLEND_RGBA_MULT)
+        shadow_surface.fill((0, 0, 0, 255), special_flags=pygame.BLEND_RGBA_MULT)
 
         shadow_rect = shadow_surface.get_rect(
             center=(self.pos.x, self.pos.y + self.height)
@@ -230,15 +230,19 @@ class Actor(Entity, ABC):
 
     def on_collision(self, other: "Actor"):
         pass
-        # print(f"Collision detected between {self} and {other}")
 
     def update(self, dt: float):
+        self.draw_shadow()  # Draw shadow first
+        self.draw()  # Then draw actor on top
+
+        # If paused, skip all game logic but keep drawing
+        if self.entity_manager.paused:
+            return
+
         # Update damage flash timer
         if self.damage_flash_timer > 0:
             self.damage_flash_timer -= dt
 
-        self.draw_shadow()  # Draw shadow first
-        self.draw()  # Then draw actor on top
         self.move(dt)
 
         # Update invulnerability timer

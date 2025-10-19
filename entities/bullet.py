@@ -13,7 +13,6 @@ class Bullet(Actor):
         dmg: float = 25,
     ):
         super().__init__(screen, initial_pos)
-        self.height = 20
         self.direction = direction.normalize()
         self.lifetime = 2.0
         self.dmg = dmg

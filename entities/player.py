@@ -10,16 +10,16 @@ class Player(Actor):
         super().__init__(screen)
         self.pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
         self.shoot_cooldown = 0  # Cooldown timer
-        self.shoot_delay = 0.2  # Seconds between shots
-        self.shoot_angle_variance = 10  # Degrees of inaccuracy
+        self.shoot_delay = 0.1  # Seconds between shots
+        self.shoot_angle_variance = 20  # Degrees of inaccuracy
         self.layer = 3
         self.size = 80
-        self.height = 20
+        self.dmg = 50
         self.invulnerability_duration: float = (
             0.2  # Seconds of invulnerability after hit
         )
         self.tags.append(Tag.PLAYER)
-        self.bullet_count = 3  # Number of bullets per shot
+        self.bullet_count = 5  # Number of bullets per shot
 
         self.load_sprite("assets/sprites/ship_sprite.png", self.size)
 
@@ -133,6 +133,7 @@ class Player(Actor):
                 angle_offset
                 + random.uniform(-self.shoot_angle_variance, self.shoot_angle_variance)
             ),
+            self.dmg,
         )
         self.entity_manager.instantiate(bullet)
 
@@ -149,6 +150,9 @@ class Player(Actor):
 
     def update(self, dt: float):
         super().update(dt)
+
+        if self.entity_manager.paused:
+            return
 
         if self.shoot_cooldown > 0:
             self.shoot_cooldown -= dt
