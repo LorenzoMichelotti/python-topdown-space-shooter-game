@@ -135,6 +135,11 @@ class Actor(Entity, ABC):
         self.entity_manager.sound_manager.play_sound("explosion")
         explosion = Explosion([Tag.PLAYER], self.screen, self.pos.copy())
         self.entity_manager.instantiate(explosion)
+        
+        # Trigger camera shake on death/explosion
+        if self.entity_manager.camera:
+            self.entity_manager.camera.shake(15, 0.2)
+        
         self.entity_manager.destroy(self)
 
     def take_damage(
@@ -159,6 +164,11 @@ class Actor(Entity, ABC):
                 knockback_direction = knockback_direction.normalize()
                 # Apply knockback to velocity
                 self.velocity += knockback_direction * knockback_force
+
+        # Trigger camera shake (more intense for player)
+        if self.entity_manager.camera:
+            shake_intensity = 10 if hasattr(self, 'tag') and self.tag == 1 else 5  # Player gets stronger shake
+            self.entity_manager.camera.shake(shake_intensity, 0.1)
 
         if self.hp <= 0:
             self.die()
