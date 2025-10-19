@@ -63,8 +63,10 @@ class Level(Scene):
         self.entity_manager.instantiate(self.cursor)
 
         # Restart wave system
-        self.wave_manager.current_wave = 0
-        self.wave_manager.wave_active = False
+        self.wave_manager.current_wave_index = 0
+        self.wave_manager.wave_in_progress = False
+        self.wave_manager.enemies_spawned = 0
+        self.wave_manager.time_since_last_spawn = 0.0
         self.wave_manager.start_next_wave()
 
     def render(self, dt: float):

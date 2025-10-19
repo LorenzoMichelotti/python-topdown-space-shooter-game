@@ -35,7 +35,7 @@ class Actor(Entity, ABC):
         self.invulnerable: bool = False
         self.invulnerable_timer: float = 0.0
         self.invulnerability_duration: float = (
-            0.2  # Seconds of invulnerability after hit
+            0.1  # Seconds of invulnerability after hit
         )
 
         self.collision_radius = 40

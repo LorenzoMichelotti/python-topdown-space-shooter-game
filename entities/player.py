@@ -16,6 +16,9 @@ class Player(Actor):
         self.layer = 3
         self.size = 80
         self.height = 20
+        self.invulnerability_duration: float = (
+            0.2  # Seconds of invulnerability after hit
+        )
         self.tags.append(Tag.PLAYER)
         self.bullet_count = 3  # Number of bullets per shot
         self.original_sprite = pygame.image.load(

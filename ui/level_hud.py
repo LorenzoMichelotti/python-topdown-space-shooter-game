@@ -22,7 +22,7 @@ class LevelHud:
         # render current wave
         font = pygame.font.Font(None, 36)
         wave_text = font.render(
-            f"Wave: {wave_manager.current_wave_index+1}",
+            f"Wave: {wave_manager.current_wave_index}",
             True,
             (
                 255,
