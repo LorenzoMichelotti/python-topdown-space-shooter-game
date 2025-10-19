@@ -18,7 +18,7 @@ class Explosion(Static):
         self.lifetime = 0.5  # Explosions last 0.5 second by default
         self.initial_lifetime = 0.5  # Store initial lifetime
         self.dmg = dmg
-        self.max_size = 200
+        self.max_size = 250
         self.size = 0  # Start at size 0
         self.grow_time = 0.1  # Time to reach max size
         self.damaged_entities = set()  # Track which entities we've already damaged

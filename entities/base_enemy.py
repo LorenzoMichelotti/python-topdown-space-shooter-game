@@ -1,4 +1,5 @@
 import pygame
+import random
 from abc import abstractmethod
 from entities.actor import Actor
 from tags.tags import Tag
@@ -12,7 +13,9 @@ class BaseEnemy(Actor):
         self.height = 10
         self.layer = 2
         self.friction = 3
-        self.max_size = 80
+
+        # Random size between 60 and 100
+        self.max_size = random.randint(60, 100)
         self.size = 0
         self.current_size = 0
         self.grow_duration = 0.2
@@ -20,6 +23,12 @@ class BaseEnemy(Actor):
         self.is_growing = True
         self.tags.append(Tag.ENEMY)
         self.velocity = pygame.Vector2(0, 0)
+
+        # Scale HP based on size (60 size = 60 HP, 80 size = 100 HP, 100 size = 150 HP)
+        # Using a formula: HP scales from 60 to 150 as size goes from 60 to 100
+        size_ratio = (self.max_size - 60) / 40  # 0.0 to 1.0
+        self.hp = 60 + (size_ratio * 90)  # 60 to 150 HP
+        self.max_hp = self.hp
 
         # Load sprite at max size
         self.load_sprite("assets/sprites/enemy.png", self.max_size)
