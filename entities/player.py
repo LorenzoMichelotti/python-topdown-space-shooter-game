@@ -18,6 +18,7 @@ class Player(Actor):
         self.layer = 3
         self.size = 80
         self.dmg = 50
+        self.collision_radius = 20
         self.invulnerability_duration: float = (
             0.2  # Seconds of invulnerability after hit
         )

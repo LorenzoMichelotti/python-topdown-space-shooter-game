@@ -10,11 +10,11 @@ class WaveManager:
     def __init__(self, entity_manager: EntityManager, screen: pygame.Surface):
         self.entity_manager = entity_manager
         self.screen = screen
-        self.current_wave_index = 100
+        self.current_wave_index = 0
         self.enemies_spawned = 0
         self.time_since_last_spawn = 0.0
         self.wave_in_progress = False
-        self.enemy_count_multiplier = 5  # Multiplier for enemy count scaling per wave
+        self.enemy_count_multiplier = 2  # Multiplier for enemy count scaling per wave
 
     def get_wave_config(self, wave_number: int):
         """Generate wave configuration based on wave number for infinite scaling"""
@@ -42,7 +42,11 @@ class WaveManager:
         )
 
     def update(self, dt: float):
-        if not self.wave_in_progress:
+        if (
+            self.entity_manager.paused
+            or self.entity_manager.game_over
+            or not self.wave_in_progress
+        ):
             return
 
         current_wave = self.get_wave_config(self.current_wave_index)

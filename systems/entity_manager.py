@@ -9,6 +9,7 @@ class EntityManager:
         self.score = 0
         self.paused = False
         self.pause_key_timer = 0  # Timer for pause key debounce
+        self.game_over = False
 
     def instantiate(self, entity: Entity, lifetime: float = -1):
         entity.entity_manager = self

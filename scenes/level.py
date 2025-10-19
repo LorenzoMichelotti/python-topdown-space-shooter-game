@@ -16,7 +16,6 @@ class Level(Scene):
     def __init__(self, screen: pygame.Surface):
         self.screen = screen
         self.camera = Camera(screen)
-        self.game_over = False
         self.game_over_timer = 0  # Delay before showing restart message
 
         # load entities
@@ -48,7 +47,7 @@ class Level(Scene):
 
     def restart(self):
         """Restart the game"""
-        self.game_over = False
+        self.entity_manager.game_over = False
         self.game_over_timer = 0
         self.entity_manager.score = 0
 
@@ -72,12 +71,12 @@ class Level(Scene):
 
     def render(self, dt: float):
         # Check if player is dead
-        if not self.game_over and self.player.hp <= 0:
-            self.game_over = True
+        if not self.entity_manager.game_over and self.player.hp <= 0:
+            self.entity_manager.game_over = True
             self.game_over_timer = 0
 
         # Handle restart input
-        if self.game_over:
+        if self.entity_manager.game_over:
             self.game_over_timer += dt
             keys = pygame.key.get_pressed()
             if (
@@ -114,7 +113,7 @@ class Level(Scene):
         self.screen.blit(world_surface, offset)
 
         # Draw game over screen
-        if self.game_over:
+        if self.entity_manager.game_over:
             # Semi-transparent dark overlay
             overlay = pygame.Surface(self.screen.get_size())
             overlay.set_alpha(180)
