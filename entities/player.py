@@ -21,12 +21,9 @@ class Player(Actor):
         )
         self.tags.append(Tag.PLAYER)
         self.bullet_count = 3  # Number of bullets per shot
-        self.original_sprite = pygame.image.load(
-            "assets/sprites/ship_sprite.png"
-        ).convert_alpha()
-        self.sprite = pygame.transform.scale(
-            self.original_sprite, (self.size, self.size)
-        )
+
+        # Load sprite using the base class method
+        self.load_sprite("assets/sprites/ship_sprite.png", self.size)
 
         # Trail effect
         self.trail_particles = []
@@ -34,18 +31,8 @@ class Player(Actor):
         self.trail_spawn_interval = 0.01  # Spawn trail particle every 0.03 seconds
 
     def draw_shadow(self):
-        # Rotate sprite for shadow
-        angle = pygame.math.Vector2(1, 0).angle_to(self.look_direction)
-        rotated_sprite = pygame.transform.rotate(self.sprite, -angle)
-
-        # Create darkened shadow
-        shadow_surface = rotated_sprite.copy()
-        shadow_surface.fill((0, 0, 0, 180), special_flags=pygame.BLEND_RGBA_MULT)
-
-        shadow_rect = shadow_surface.get_rect(
-            center=(self.pos.x, self.pos.y + self.height)
-        )
-        self.screen.blit(shadow_surface, shadow_rect)
+        # Use the base class sprite shadow method
+        self.draw_sprite_shadow(self.look_direction)
 
     def _update_trail(self, dt: float):
         """Update trail particles"""
@@ -98,30 +85,8 @@ class Player(Actor):
         # Draw trail first (behind the ship)
         self._draw_trail()
 
-        # Calculate angle from look direction
-        angle = pygame.math.Vector2(1, 0).angle_to(self.look_direction)
-
-        # Rotate the sprite
-        rotated_sprite = pygame.transform.rotate(self.sprite, -angle)
-        rect = rotated_sprite.get_rect(center=(self.pos.x, self.pos.y))
-
-        # Draw the normal sprite
-        self.screen.blit(rotated_sprite, rect)
-
-        # Apply flash effect if taking damage - red sprite overlay
-        if self.damage_flash_timer > 0:
-            # Create a red flash surface from the sprite
-            flash_surface = rotated_sprite.copy()
-
-            # Tint red while preserving the shape
-            # First multiply to remove other colors
-            flash_surface.fill(
-                (255, 100, 100, 255), special_flags=pygame.BLEND_RGB_MULT
-            )
-            # Then add red tint
-            flash_surface.fill((150, 0, 0, 0), special_flags=pygame.BLEND_RGB_ADD)
-
-            self.screen.blit(flash_surface, rect)
+        # Use the base class sprite drawing method with red flash color
+        self.draw_sprite(self.look_direction, flash_color=(255, 100, 100))
 
     def move(self, dt: float):
         keys = pygame.key.get_pressed()

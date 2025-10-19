@@ -20,6 +20,9 @@ class Bullet(Actor):
         self.tags.append(Tag.BULLET)
         self.max_speed = 1500  # Bullets are fast
 
+        # Load sprite using the base class method
+        self.load_sprite("assets/sprites/bullet.png", 80)
+
         # Dimensions
         self.width = 70
         self.original_width = 70
@@ -59,30 +62,20 @@ class Bullet(Actor):
             self.shrink_timer = 0
 
     def draw_shadow(self):
-        angle = pygame.math.Vector2(1, 0).angle_to(self.direction)
-        shadow_surface = pygame.Surface(
-            (self.width, self.bullet_height), pygame.SRCALPHA
-        )
-        pygame.draw.rect(
-            shadow_surface, "black", (0, 0, self.width, self.bullet_height)
-        )
-        rotated_shadow = pygame.transform.rotate(shadow_surface, -angle)
-        shadow_rect = rotated_shadow.get_rect(
-            center=(self.pos.x, self.pos.y + self.height)
-        )
-        self.screen.blit(rotated_shadow, shadow_rect)
+        # Calculate scale based on shrink animation
+        scale_x = self.width / self.original_width
+        scale_y = self.bullet_height / self.original_height
+
+        # Use the base class sprite shadow method with scaling
+        self.draw_sprite_shadow_scaled(self.direction, scale=(scale_x, scale_y))
 
     def draw(self):
-        angle = pygame.math.Vector2(1, 0).angle_to(self.direction)
-        bullet_surface = pygame.Surface(
-            (self.width, self.bullet_height), pygame.SRCALPHA
-        )
-        pygame.draw.rect(
-            bullet_surface, "yellow", (0, 0, self.width, self.bullet_height)
-        )
-        rotated_surface = pygame.transform.rotate(bullet_surface, -angle)
-        rect = rotated_surface.get_rect(center=(self.pos.x, self.pos.y))
-        self.screen.blit(rotated_surface, rect)
+        # Calculate scale based on shrink animation
+        scale_x = self.width / self.original_width
+        scale_y = self.bullet_height / self.original_height
+
+        # Use the base class sprite drawing method with scaling
+        self.draw_sprite(self.direction, scale=(scale_x, scale_y))
 
     def move(self, dt: float):
         # Handle shrinking animation

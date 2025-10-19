@@ -43,6 +43,120 @@ class Actor(Entity, ABC):
         self.max_hp = 100
         self.dmg = 10
 
+        # Sprite handling - simplified sprite system for actors
+        # Use load_sprite() to initialize, then draw_sprite() and draw_sprite_shadow() in draw methods
+        self.original_sprite = None
+        self.sprite = None
+        self.sprite_size = 80
+
+    def load_sprite(self, sprite_path: str, size: int = None):
+        """Load and scale a sprite for this actor"""
+        if size:
+            self.sprite_size = size
+        self.original_sprite = pygame.image.load(sprite_path).convert_alpha()
+        self.sprite = pygame.transform.scale(
+            self.original_sprite, (self.sprite_size, self.sprite_size)
+        )
+
+    def draw_sprite_shadow(self, direction: pygame.Vector2):
+        """Draw a shadow for the sprite rotated to face the given direction"""
+        if not self.sprite:
+            return
+
+        # Rotate sprite for shadow
+        angle = pygame.math.Vector2(1, 0).angle_to(direction)
+        rotated_sprite = pygame.transform.rotate(self.sprite, -angle)
+
+        # Create darkened shadow
+        shadow_surface = rotated_sprite.copy()
+        shadow_surface.fill((0, 0, 0, 180), special_flags=pygame.BLEND_RGBA_MULT)
+
+        shadow_rect = shadow_surface.get_rect(
+            center=(self.pos.x, self.pos.y + self.height)
+        )
+        self.screen.blit(shadow_surface, shadow_rect)
+
+    def draw_sprite(
+        self,
+        direction: pygame.Vector2,
+        flash_color: tuple = None,
+        scale: tuple = (1.0, 1.0),
+    ):
+        """Draw the sprite rotated to face the given direction, with optional damage flash and scaling
+
+        Args:
+            direction: Direction vector the sprite should face
+            flash_color: Optional RGB tuple for damage flash effect
+            scale: Optional (scale_x, scale_y) tuple for sprite scaling
+        """
+        if not self.sprite:
+            return None
+
+        # Apply scaling if needed
+        sprite_to_use = self.sprite
+        if scale != (1.0, 1.0):
+            scaled_width = int(self.sprite_size * scale[0])
+            scaled_height = int(self.sprite_size * scale[1])
+            sprite_to_use = pygame.transform.scale(
+                self.original_sprite, (scaled_width, scaled_height)
+            )
+
+        # Calculate angle from direction
+        angle = pygame.math.Vector2(1, 0).angle_to(direction)
+
+        # Rotate the sprite
+        rotated_sprite = pygame.transform.rotate(sprite_to_use, -angle)
+        rect = rotated_sprite.get_rect(center=(self.pos.x, self.pos.y))
+
+        # Draw the normal sprite
+        self.screen.blit(rotated_sprite, rect)
+
+        # Apply flash effect if taking damage
+        if self.damage_flash_timer > 0 and flash_color:
+            # Create a colored flash surface from the sprite
+            flash_surface = rotated_sprite.copy()
+
+            # Tint with flash color while preserving the shape
+            flash_surface.fill(
+                flash_color[:3] + (255,), special_flags=pygame.BLEND_RGB_MULT
+            )
+            # Then add color tint
+            tint = (flash_color[0] // 2, flash_color[1] // 2, flash_color[2] // 2, 0)
+            flash_surface.fill(tint, special_flags=pygame.BLEND_RGB_ADD)
+
+            self.screen.blit(flash_surface, rect)
+
+        return rotated_sprite, rect
+
+    def draw_sprite_shadow_scaled(
+        self, direction: pygame.Vector2, scale: tuple = (1.0, 1.0)
+    ):
+        """Draw a shadow for the sprite with optional scaling"""
+        if not self.sprite:
+            return
+
+        # Apply scaling if needed
+        sprite_to_use = self.sprite
+        if scale != (1.0, 1.0):
+            scaled_width = int(self.sprite_size * scale[0])
+            scaled_height = int(self.sprite_size * scale[1])
+            sprite_to_use = pygame.transform.scale(
+                self.original_sprite, (scaled_width, scaled_height)
+            )
+
+        # Rotate sprite for shadow
+        angle = pygame.math.Vector2(1, 0).angle_to(direction)
+        rotated_sprite = pygame.transform.rotate(sprite_to_use, -angle)
+
+        # Create darkened shadow
+        shadow_surface = rotated_sprite.copy()
+        shadow_surface.fill((0, 0, 0, 180), special_flags=pygame.BLEND_RGBA_MULT)
+
+        shadow_rect = shadow_surface.get_rect(
+            center=(self.pos.x, self.pos.y + self.height)
+        )
+        self.screen.blit(shadow_surface, shadow_rect)
+
     def get_color_with_flash(self, normal_color):
         """Returns the color to draw, with flash effect if taking damage"""
         if self.damage_flash_timer > 0:

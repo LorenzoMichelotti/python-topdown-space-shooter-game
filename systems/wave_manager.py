@@ -18,26 +18,25 @@ class WaveManager:
         # Base values
         base_enemy_count = 5
         base_spawn_interval = 1.0
-        
+
         # Scale enemy count: increases by 3 every wave, with diminishing returns
         enemy_count = base_enemy_count + (wave_number * 3)
-        
+
         # Scale spawn interval: gets faster but has a minimum of 0.1 seconds
         spawn_interval = max(0.1, base_spawn_interval - (wave_number * 0.05))
-        
-        return {
-            "enemy_count": enemy_count,
-            "spawn_interval": spawn_interval
-        }
+
+        return {"enemy_count": enemy_count, "spawn_interval": spawn_interval}
 
     def start_next_wave(self):
         self.current_wave_index += 1
         self.enemies_spawned = 0
         self.time_since_last_spawn = 0.0
         self.wave_in_progress = True
-        
+
         wave_config = self.get_wave_config(self.current_wave_index)
-        print(f"Wave {self.current_wave_index} starting! Enemies: {wave_config['enemy_count']}, Spawn Interval: {wave_config['spawn_interval']:.2f}s")
+        print(
+            f"Wave {self.current_wave_index} starting! Enemies: {wave_config['enemy_count']}, Spawn Interval: {wave_config['spawn_interval']:.2f}s"
+        )
 
     def update(self, dt: float):
         if not self.wave_in_progress:
