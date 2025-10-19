@@ -8,7 +8,6 @@ from tags.tags import Tag
 class Player(Actor):
     def __init__(self, screen: pygame.Surface):
         super().__init__(screen)
-        self.look_direction = pygame.Vector2(1, 0)
         self.pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
         self.shoot_cooldown = 0  # Cooldown timer
         self.shoot_delay = 0.2  # Seconds between shots
@@ -22,7 +21,6 @@ class Player(Actor):
         self.tags.append(Tag.PLAYER)
         self.bullet_count = 3  # Number of bullets per shot
 
-        # Load sprite using the base class method
         self.load_sprite("assets/sprites/ship_sprite.png", self.size)
 
         # Trail effect
@@ -31,12 +29,10 @@ class Player(Actor):
         self.trail_spawn_interval = 0.01  # Spawn trail particle every 0.03 seconds
 
     def draw_shadow(self):
-        # Use the base class sprite shadow method
         self.draw_sprite_shadow(self.look_direction)
 
     def _update_trail(self, dt: float):
         """Update trail particles"""
-        # Update existing particles
         for particle in self.trail_particles[:]:
             particle["lifetime"] -= dt
 
@@ -115,11 +111,8 @@ class Player(Actor):
         self.pos.x = max(half_size, min(self.pos.x, screen_width - half_size))
         self.pos.y = max(half_size, min(self.pos.y, screen_height - half_size))
 
-        # Update look direction to mouse
         mouse_pos = pygame.mouse.get_pos()
-        direction = pygame.Vector2(mouse_pos[0] - self.pos.x, mouse_pos[1] - self.pos.y)
-        if direction.length() > 0:
-            self.look_direction = direction.normalize()
+        self.update_look_direction_to_target(pygame.Vector2(mouse_pos))
 
         # Update trail
         self._update_trail(dt)

@@ -19,8 +19,8 @@ class WaveManager:
         base_enemy_count = 5
         base_spawn_interval = 1.0
 
-        # Scale enemy count: increases by 3 every wave, with diminishing returns
-        enemy_count = base_enemy_count + (wave_number * 3)
+        # Scale enemy count: increases by 5 every wave for more aggressive scaling
+        enemy_count = base_enemy_count + (wave_number * 5)
 
         # Scale spawn interval: gets faster but has a minimum of 0.1 seconds
         spawn_interval = max(0.1, base_spawn_interval - (wave_number * 0.05))
@@ -59,7 +59,21 @@ class WaveManager:
                 self.start_next_wave()
 
     def spawn_enemy(self):
-        enemy = Enemy(
-            self.screen, pygame.Vector2(random.randint(0, self.screen.get_width()), 0)
-        )
+        """Spawn an enemy from a random side of the screen"""
+        screen_width = self.screen.get_width()
+        screen_height = self.screen.get_height()
+
+        # Choose a random side: 0=top, 1=right, 2=bottom, 3=left
+        side = random.randint(0, 3)
+
+        if side == 0:  # Top
+            spawn_pos = pygame.Vector2(random.randint(0, screen_width), 0)
+        elif side == 1:  # Right
+            spawn_pos = pygame.Vector2(screen_width, random.randint(0, screen_height))
+        elif side == 2:  # Bottom
+            spawn_pos = pygame.Vector2(random.randint(0, screen_width), screen_height)
+        else:  # Left (side == 3)
+            spawn_pos = pygame.Vector2(0, random.randint(0, screen_height))
+
+        enemy = Enemy(self.screen, spawn_pos)
         self.entity_manager.instantiate(enemy)

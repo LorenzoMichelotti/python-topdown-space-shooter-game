@@ -43,8 +43,8 @@ class Actor(Entity, ABC):
         self.max_hp = 100
         self.dmg = 10
 
-        # Sprite handling - simplified sprite system for actors
-        # Use load_sprite() to initialize, then draw_sprite() and draw_sprite_shadow() in draw methods
+        self.look_direction = pygame.Vector2(1, 0)  # Direction the actor is facing
+
         self.original_sprite = None
         self.sprite = None
         self.sprite_size = 80
@@ -156,6 +156,17 @@ class Actor(Entity, ABC):
             center=(self.pos.x, self.pos.y + self.height)
         )
         self.screen.blit(shadow_surface, shadow_rect)
+
+    def update_look_direction_from_velocity(self):
+        """Update look_direction to face the direction of movement"""
+        if self.velocity.length() > 0:
+            self.look_direction = self.velocity.normalize()
+
+    def update_look_direction_to_target(self, target_pos: pygame.Vector2):
+        """Update look_direction to face a target position"""
+        direction = target_pos - self.pos
+        if direction.length() > 0:
+            self.look_direction = direction.normalize()
 
     def get_color_with_flash(self, normal_color):
         """Returns the color to draw, with flash effect if taking damage"""

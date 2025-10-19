@@ -50,6 +50,7 @@ class Level(Scene):
         """Restart the game"""
         self.game_over = False
         self.game_over_timer = 0
+        self.entity_manager.score = 0
 
         # Clear all entities
         self.entity_manager.entities.clear()

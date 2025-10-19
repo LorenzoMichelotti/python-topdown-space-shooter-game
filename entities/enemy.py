@@ -19,46 +19,28 @@ class Enemy(Actor):
         self.is_growing = True  # Flag to track if still growing
         self.tags.append(Tag.ENEMY)
         self.velocity = pygame.Vector2(0, 0)
-        self.rotation = 0  # Current rotation angle
+        self.load_sprite("assets/sprites/enemy.png", self.max_size)
 
     def draw_shadow(self):
-        # Create a rotated shadow surface using current_size
-        if self.current_size <= 0:
-            return  # Don't draw shadow if size is 0
+        # Calculate scale based on growth animation
+        if self.is_growing:
+            scale = self.current_size / self.max_size
+        else:
+            scale = 1.0
 
-        shadow_surface = pygame.Surface(
-            (self.current_size, self.current_size), pygame.SRCALPHA
-        )
-        pygame.draw.rect(
-            shadow_surface, "black", (0, 0, self.current_size, self.current_size)
-        )
-
-        rotated_shadow = pygame.transform.rotate(shadow_surface, -self.rotation)
-        shadow_rect = rotated_shadow.get_rect(
-            center=(self.pos.x, self.pos.y + self.height)
-        )
-        self.screen.blit(rotated_shadow, shadow_rect)
+        self.draw_sprite_shadow_scaled(self.look_direction, scale=(scale, scale))
 
     def draw(self):
-        # Don't draw if size is 0
-        if self.current_size <= 0:
-            return
+        # Calculate scale based on growth animation
+        if self.is_growing:
+            scale = self.current_size / self.max_size
+        else:
+            scale = 1.0
 
-        color = self.get_color_with_flash("red")
-
-        # Create a surface for the square using current_size
-        square_surface = pygame.Surface(
-            (self.current_size, self.current_size), pygame.SRCALPHA
+        # Use the base class sprite drawing method with scaling
+        self.draw_sprite(
+            self.look_direction, flash_color=(255, 100, 100), scale=(scale, scale)
         )
-        pygame.draw.rect(
-            square_surface, color, (0, 0, self.current_size, self.current_size)
-        )
-
-        # Rotate the surface
-        rotated_surface = pygame.transform.rotate(square_surface, -self.rotation)
-        rect = rotated_surface.get_rect(center=(self.pos.x, self.pos.y))
-
-        self.screen.blit(rotated_surface, rect)
 
     def move(self, dt: float):
         # Handle growth animation
@@ -102,14 +84,11 @@ class Enemy(Actor):
             if distance_to_player > self.collision_radius:
                 self.velocity = self.velocity.normalize() * self.max_speed
 
-        # Update rotation based on velocity direction
-        if self.velocity.length() > 0:
-            self.rotation = pygame.math.Vector2(1, 0).angle_to(self.velocity)
+        self.update_look_direction_from_velocity()
 
         self.update_position(dt)
 
     def on_collision(self, other: Actor):
-        # Don't collide with entities that share the same tags
         if any(tag in other.tags for tag in self.tags):
             return
 
