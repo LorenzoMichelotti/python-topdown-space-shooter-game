@@ -1,12 +1,15 @@
 # Example file showing a basic pygame "game loop"
 import pygame
+from enum import Enum
 
 from entities.cursor import Cursor
 from entities.enemy import Enemy
 from entities.player import Player
+from scenes.level import Level
 from systems.entity_manager import EntityManager
 from systems.sound_manager import SoundManager
 from systems.wave_manager import WaveManager
+from ui.main_menu import MainMenu
 
 # pygame setup
 pygame.init()
@@ -15,47 +18,23 @@ clock = pygame.time.Clock()
 running = True
 dt = 0  # Delta time between frames
 
-# load entities
-player = Player(screen)
-enemy = Enemy(
-    screen, pygame.Vector2(screen.get_width() / 2 - 200, screen.get_height() / 2)
-)
-sound_manager = SoundManager()
-entity_manager = EntityManager(sound_manager=sound_manager)
-wave_manager = WaveManager(entity_manager, screen)
-cursor = Cursor(screen)
+current_scene = None
 
 
-def setup():
-    pygame.mouse.set_visible(False)
-    # entity_manager.instantiate(enemy)
-    sound_manager.load_sound("shoot", "assets/sounds/Shoot6.wav", 0.1)
-    sound_manager.load_sound("explosion", "assets/sounds/Boom10.wav")
-    sound_manager.load_sound("hit", "assets/sounds/Hit.wav")
-
-    entity_manager.instantiate(player)
-    entity_manager.instantiate(cursor)
-
-    wave_manager.start_next_wave()
+def switch_scene(new_scene):
+    global current_scene
+    current_scene = new_scene
+    current_scene.setup()
 
 
-def render():
-    screen.fill("blue")
-
-    entity_manager.update(dt)
-    wave_manager.update(dt)
-
-    pygame.display.flip()
-
-
-setup()
+switch_scene(MainMenu(screen, switch_scene))
 
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
 
-    render()
+    current_scene.render(dt)
 
     dt = clock.tick(144) / 1000
 

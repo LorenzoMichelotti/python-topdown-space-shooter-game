@@ -18,6 +18,7 @@ class Bullet(Actor):
         self.lifetime = 2.0
         self.dmg = dmg
         self.tags.append(Tag.BULLET)
+        self.max_speed = 1500  # Bullets are fast
 
         # Dimensions
         self.width = 70
@@ -92,7 +93,7 @@ class Bullet(Actor):
             return  # Don't move while shrinking
 
         # Normal movement
-        self.pos += self.direction * 1000 * dt
+        self.pos += self.direction * self.max_speed * dt
 
     def on_collision(self, other: Actor):
         # Don't collide with entities that share the same tags

@@ -165,5 +165,5 @@ class Actor(Entity, ABC):
             return
 
         self.entity_manager.sound_manager.play_sound("hit")
-        damage_number = DamageNumber(self.screen, self.pos.copy(), amount)
-        self.entity_manager.instantiate(damage_number)
+        # damage_number = DamageNumber(self.screen, self.pos.copy(), amount)
+        # self.entity_manager.instantiate(damage_number)
